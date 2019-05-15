@@ -54,10 +54,23 @@ public class Client {
 		// sends 10 packets -- 5 reads, 5 writes, 1 invalid
 
 		// Get User Input for filename
+		//Scanner inputFilename = new Scanner(System.in);
+		//System.out.println("Enter Filename:");
+		
+		
 		Scanner inputFilename = new Scanner(System.in);
 		System.out.println("Enter Filename:");
 		String filename1 = inputFilename.nextLine();
-
+		
+		file = new File("client_files\\" +fname);
+		filexists = file.exists();
+		// If the file name entered by the user doesn't exist
+		if(!filexists)
+		{
+			System.out.println("File does not exist, please re-enter the file name");
+		}
+		}while(!filexists);  // loop while the file name entered doesn't exist
+		
 		for (int i = 1; i <= 11; i++) {
 
 			System.out.println("Client: creating packet " + i + ".");
@@ -188,6 +201,16 @@ public class Client {
 
 	public static void main(String args[]) {
 		Client c = new Client();
-		c.sendAndReceive();
+		
+		// Get User Input for filename
+		Scanner inputFilename = new Scanner(System.in);
+		System.out.println("Would you like to send/ Recieve or Quit?");
+		String filename1 = inputFilename.nextLine();
+		
+		while(true) {
+			c.sendAndReceive();
+		}
+		System.exit(1);
+			
 	}
 }
