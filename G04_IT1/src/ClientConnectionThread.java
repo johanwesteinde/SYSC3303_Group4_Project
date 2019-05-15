@@ -29,6 +29,8 @@ public class ClientConnectionThread extends Thread {
 	}
 
 	public void run() {
+		//thread closes once done running this method
+		
 		data = receivePacket.getData();
 
 		// Process the received datagram.
@@ -41,10 +43,7 @@ public class ClientConnectionThread extends Thread {
 
 		// print the bytes
 		System.out.println(Arrays.toString(data));
-		/*
-		 * for (j = 0; j < len; j++) { System.out.println("byte " + j + " " + data[j]);
-		 * }
-		 */
+		
 		// Form a String from the byte array.
 		String received = new String(data, 0, len);
 		System.out.println(received);
