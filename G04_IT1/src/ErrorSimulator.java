@@ -197,7 +197,7 @@ public class ErrorSimulator {
 
    public static void main( String args[] )
    {
-	  ErrorSimulator sim = new ErrorSimulator();
+      ErrorSimulator sim = new ErrorSimulator();
       sim.passOnTFTP();
    }
 }
