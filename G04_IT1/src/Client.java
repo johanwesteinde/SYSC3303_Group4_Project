@@ -6,12 +6,19 @@
 
 import java.io.*;
 import java.net.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Client {
 
-	private DatagramPacket sendPacket, receivePacket;
+	private DatagramPacket sendPacket, receivePacket, sendDataPacket;
 	private DatagramSocket sendReceiveSocket;
+	//start with fis = null, set it later
+	private FileInputStream fis = null;
+	private byte readWriteCode = 00;
+	private int receivePort;
 	
 	// we can run in normal (send directly to server) or test
 	// (send to simulator) mode
@@ -31,19 +38,17 @@ public class Client {
 		}
 	}
 
-	public void sendAndReceive() {
-		byte[] msg = new byte[100], // message we send
+	public void sendAndReceive(byte RWCode) {
+		readWriteCode = RWCode;
+		
+		byte[] msg, // message we send
 				fn, // filename as an array of bytes
 				md, // mode as an array of bytes
 				data; // reply as array of bytes
 		String filename, mode; // filename and mode as Strings
 		int j, len, sendPort;
-
-		// In the assignment, students are told to send to 23, so just:
-		// sendPort = 23;
-		// is needed.
-		// However, in the project, the following will be useful, except
-		// that test vs. normal will be entered by the user.
+		
+		// test vs. normal will be entered by the user.
 		Mode run = Mode.TEST; // change to NORMAL to send directly to server
 
 		if (run == Mode.NORMAL)
@@ -51,50 +56,28 @@ public class Client {
 		else
 			sendPort = 23;
 
-		// sends 10 packets -- 5 reads, 5 writes, 1 invalid
-
 		// Get User Input for filename
-		// Scanner inputFilename = new Scanner(System.in);
-		// System.out.println("Enter Filename:");
-
 		Scanner inputFilename = new Scanner(System.in);
-		System.out.print("Enter Filename:");
+		System.out.print("Enter Filename: ");
 		String filename1 = inputFilename.nextLine();
 
-		// file = new File("client_files\\" +fname);
-		// filexists = file.exists();
-		// If the file name entered by the user doesn't exist
-		// if(!filexists)
-		// {
-		// System.out.println("File does not exist, please re-enter the file name");
-		// }
-		// }while(!filexists); // loop while the file name entered doesn't exist
+		//set up the currentPath string 
+		Path currRelativePath = Paths.get("");
+		String currPath = currRelativePath.toAbsolutePath().toString();
+		//set up writeFilePath
+		Path writeFilePath = Paths.get(currPath + "\\client", filename1);
 
 		for (int i = 1; i <= 10; i++) {
 
 			System.out.println("Client: creating packet " + i + ".");
 
-			// Prepare a DatagramPacket and send it via sendReceiveSocket
-			// to sendPort on the destination host (also on this machine).
-
-			// if i even (2,4,6,8,10), it's a read; otherwise a write
-			// (1,3,5,7,9) opcode for read is 01, and for write 02
-			// And #11 is invalid (opcode 07 here -- could be anything)
-
-			msg[0] = 0;
-			if (i % 2 == 0)
-				msg[1] = 1;
-			else
-				msg[1] = 2;
-
-			if (i == 11)
-				msg[1] = 7; // if it's the 11th time, send an invalid request
-
-			// next we have a file name -- let's just pick one
-
-			// convert to bytes
+			//get length of request
+			int serverRequestLength = 4 + filename1.length() + mode.length();
+			msg = new byte[serverRequestLength];
+			
+			// convert filename to bytes
 			fn = filename1.getBytes();
-
+			
 			// and copy into the msg
 			System.arraycopy(fn, 0, msg, 2, fn.length);
 			// format is: source array, source index, dest array,
@@ -139,7 +122,7 @@ public class Client {
 				System.exit(1);
 			}
 
-			System.out.println("Client: sending packet " + i + ".");
+			System.out.println("Client: sending packet.");
 			System.out.println("To host: " + sendPacket.getAddress());
 			System.out.println("Destination host port: " + sendPacket.getPort());
 			len = sendPacket.getLength();
@@ -163,20 +146,26 @@ public class Client {
 			}
 
 			System.out.println("Client: Packet sent.");
-
-			// Construct a DatagramPacket for receiving packets up
-			// to 100 bytes long (the length of the byte array).
-
-			data = new byte[100];
-			receivePacket = new DatagramPacket(data, data.length);
-
-			System.out.println("Client: Waiting for packet.");
+			
+			
+			
+			//if its a read request, write out the file 
+			if(readWriteCode == 1) {
+				//TODO implement this
+				
+			}
+			//if its a write request
+			if(readWriteCode == 2) {
 			try {
 				// Block until a datagram is received via sendReceiveSocket.
 				sendReceiveSocket.receive(receivePacket);
 			} catch (IOException e) {
 				e.printStackTrace();
 				System.exit(1);
+			}
+			} else {
+				//if the readWriteCode doesn't equal 1 or 2, quit (invalid)
+				System.out.println("INVALID FILE REQUEST (not write or read)");
 			}
 
 			// Process the received datagram.
@@ -205,18 +194,24 @@ public class Client {
 	}
 	
 	public static void main(String args[]) {
-		Client c = new Client();
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Welcome Client!");
 		
 		while (true) {
 			// Get User Input for filename
-			System.out.print("Enter Command: ");
+			System.out.print("Enter Command ('read', 'write', or 'quit'): ");
 			String command = scanner.nextLine();
 			
-			if (command.equalsIgnoreCase("send")) {
-				c.sendAndReceive();
-			}else if (command.equalsIgnoreCase("quit")) {
+			if (command.equalsIgnoreCase("read")) {
+				//pass in 1 as the Read/Write code
+				Client c = new Client();
+				c.sendAndReceive((byte) 1);
+			}else if (command.equalsIgnoreCase("write")) {
+				//pass in 2 as the Read/Write code
+				Client c = new Client();
+				c.sendAndReceive((byte) 2);
+			}
+			else if (command.equalsIgnoreCase("quit")) {
 				System.out.println("Client shutting down...");
 				scanner.close();
 				return;
