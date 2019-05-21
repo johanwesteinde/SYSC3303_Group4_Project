@@ -12,7 +12,7 @@ public class Client {
 
 	private DatagramPacket sendPacket, receivePacket;
 	private DatagramSocket sendReceiveSocket;
-
+	
 	// we can run in normal (send directly to server) or test
 	// (send to simulator) mode
 	public static enum Mode {
@@ -54,11 +54,23 @@ public class Client {
 		// sends 10 packets -- 5 reads, 5 writes, 1 invalid
 
 		// Get User Input for filename
+		// Scanner inputFilename = new Scanner(System.in);
+		// System.out.println("Enter Filename:");
+
 		Scanner inputFilename = new Scanner(System.in);
-		System.out.println("Enter Filename:");
+		System.out.print("Enter Filename:");
 		String filename1 = inputFilename.nextLine();
 
-		for (int i = 1; i <= 11; i++) {
+		// file = new File("client_files\\" +fname);
+		// filexists = file.exists();
+		// If the file name entered by the user doesn't exist
+		// if(!filexists)
+		// {
+		// System.out.println("File does not exist, please re-enter the file name");
+		// }
+		// }while(!filexists); // loop while the file name entered doesn't exist
+
+		for (int i = 1; i <= 10; i++) {
 
 			System.out.println("Client: creating packet " + i + ".");
 
@@ -186,8 +198,32 @@ public class Client {
 		sendReceiveSocket.close();
 	}
 
+	public static void printOptions()
+	{
+		System.out.println("	Send: Send a file to Server.");
+		System.out.println("	Quit: Stops the client.");
+	}
+	
 	public static void main(String args[]) {
 		Client c = new Client();
-		c.sendAndReceive();
-	}
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Welcome Client!");
+		
+		while (true) {
+			// Get User Input for filename
+			System.out.print("Enter Command: ");
+			String command = scanner.nextLine();
+			
+			if (command.equalsIgnoreCase("send")) {
+				c.sendAndReceive();
+			}else if (command.equalsIgnoreCase("quit")) {
+				System.out.println("Client shutting down...");
+				scanner.close();
+				return;
+			} else {
+				System.out.println("Invalid command. Please try again.");
+				printOptions();
+			}
+		}
+	 }
 }
