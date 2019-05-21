@@ -50,6 +50,11 @@ public class Client {
       else
          sendPort = 23;
       
+      Scanner inputFilename = new Scanner(System.in);
+      System.out.print("Enter Filename:");
+      String filename1 = inputFilename.nextLine();
+
+      
       // sends 10 packets -- 5 reads, 5 writes, 1 invalid
       for(int i=1; i<=11; i++) {
 
