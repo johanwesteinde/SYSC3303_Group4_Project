@@ -11,6 +11,7 @@ public class Client {
 
    private DatagramPacket sendPacket, receivePacket;
    private DatagramSocket sendReceiveSocket;
+   private byte readWriteCode = 00;
    
    // we can run in normal (send directly to server) or test
    // (send to simulator) mode
@@ -29,8 +30,9 @@ public class Client {
       }
    }
 
-   public void sendAndReceive()
+   public void sendAndReceive(byte RWCode)
    {
+	  readWriteCode = RWCode;
       byte[] msg = new byte[100], // message we send
              fn, // filename as an array of bytes
              md, // mode as an array of bytes
@@ -54,6 +56,18 @@ public class Client {
       System.out.print("Enter Filename:");
       String filename1 = inputFilename.nextLine();
 
+      if(readWriteCode == 1) {
+    	  //TODO implement the READ
+    	  
+      } else if (readWriteCode == 2) {
+    	  //TODO implement the write
+    	  
+      } else {
+    	  System.out.println("INVALID REQUEST (readWriteCode should be 1 or 2");
+    	  System.exit(0);
+      }
+      
+      
       
       // sends 10 packets -- 5 reads, 5 writes, 1 invalid
       for(int i=1; i<=11; i++) {
@@ -202,8 +216,10 @@ public class Client {
 			System.out.print("Enter Command: ");
 			String command = scanner.nextLine();
 			
-			if (command.equalsIgnoreCase("send")) {
-				c.sendAndReceive();
+			if (command.equalsIgnoreCase("read")) {
+				c.sendAndReceive((byte)1);
+			}else if (command.equalsIgnoreCase("write")) {
+				c.sendAndReceive((byte)2);
 			}else if (command.equalsIgnoreCase("quit")) {
 				System.out.println("Client shutting down...");
 				scanner.close();
