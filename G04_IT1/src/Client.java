@@ -5,6 +5,7 @@
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class Client {
 
@@ -48,6 +49,11 @@ public class Client {
          sendPort = 69;
       else
          sendPort = 23;
+      
+      Scanner inputFilename = new Scanner(System.in);
+      System.out.print("Enter Filename:");
+      String filename1 = inputFilename.nextLine();
+
       
       // sends 10 packets -- 5 reads, 5 writes, 1 invalid
       for(int i=1; i<=11; i++) {
@@ -179,11 +185,35 @@ public class Client {
       sendReceiveSocket.close();
    }
 
+   public static void printOptions()
+	{
+		System.out.println("	Send: Send a file to Server.");
+		System.out.println("	Quit: Stops the client.");
+	}
+   
    public static void main(String args[])
    {
-	  Client c = new Client();
-      c.sendAndReceive();
-   }
+		Client c = new Client();
+		Scanner scanner = new Scanner(System.in);
+		System.out.println("Welcome Client!");
+		
+		while (true) {
+			// Get User Input for filename
+			System.out.print("Enter Command: ");
+			String command = scanner.nextLine();
+			
+			if (command.equalsIgnoreCase("send")) {
+				c.sendAndReceive();
+			}else if (command.equalsIgnoreCase("quit")) {
+				System.out.println("Client shutting down...");
+				scanner.close();
+				return;
+			} else {
+				System.out.println("Invalid command. Please try again.");
+				printOptions();
+			}
+		}
+	 }
 }
 
 
