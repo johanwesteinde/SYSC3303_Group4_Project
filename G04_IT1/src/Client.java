@@ -201,7 +201,8 @@ public class Client {
 
    public static void printOptions()
 	{
-		System.out.println("	Send: Send a file to Server.");
+		System.out.println("	Read: Read file from the server");
+		System.out.println("    Write: Write a file to the server");
 		System.out.println("	Quit: Stops the client.");
 	}
    
@@ -216,11 +217,11 @@ public class Client {
 			System.out.print("Enter Command: ");
 			String command = scanner.nextLine();
 			
-			if (command.equalsIgnoreCase("read")) {
+			if (command.toLowerCase().equalsIgnoreCase("read")) {
 				c.sendAndReceive((byte)1);
-			}else if (command.equalsIgnoreCase("write")) {
+			}else if (command.toLowerCase().equalsIgnoreCase("write")) {
 				c.sendAndReceive((byte)2);
-			}else if (command.equalsIgnoreCase("quit")) {
+			}else if (command.toLowerCase().equalsIgnoreCase("quit")) {
 				System.out.println("Client shutting down...");
 				scanner.close();
 				return;
