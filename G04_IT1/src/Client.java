@@ -98,7 +98,7 @@ public class Client {
       //  69 - the destination port number on the destination host.
       try {
          sendPacket = new DatagramPacket(msg, len,
-                             InetAddress.getByName("172.17.74.179"), sendPort);
+                             InetAddress.getLocalHost(), sendPort);
       } catch (UnknownHostException e) {
          e.printStackTrace();
          System.exit(1);
