@@ -9,7 +9,7 @@ public class ClientConnectionThread extends Thread {
 	byte[] response = new byte[4];
 	
 	private DatagramPacket sendPacket, receivePacket;
-	private DatagramSocket sendSocket, receiveSocket;
+	private DatagramSocket sendSocketAndRecieve;
 
 	// types of requests we can receive
 	public static enum Request {
@@ -17,8 +17,8 @@ public class ClientConnectionThread extends Thread {
 	};
 
 	// responses for valid requests
-	public static final byte[] readResp = { 0, 3, 0, 1 };
-	public static final byte[] writeResp = { 0, 4, 0, 0 };
+	public static final byte[] dataResp = { 0, 3, 0, 1 };
+	public static final byte[] ackResp = { 0, 4, 0, 0 };
 	
 	Request req; // READ, WRITE or ERROR
 	String filename, mode;
@@ -26,6 +26,15 @@ public class ClientConnectionThread extends Thread {
 
 	public ClientConnectionThread(DatagramPacket packet) {
 		receivePacket = packet;
+		try {
+			// Construct a new datagram socket and bind it to any port
+			// on the local host machine. This socket will be used to
+			// send UDP Datagram packets.
+			sendSocketAndRecieve = new DatagramSocket();
+		} catch (SocketException se) {
+			se.printStackTrace();
+			System.exit(1);
+		}
 	}
 
 	public void run() {
@@ -92,12 +101,12 @@ public class ClientConnectionThread extends Thread {
 
 		// Create a response.
 		if (req == Request.READ) { // for Read it's 0301
-			response = readResp;
+			response = dataResp;
 		} else if (req == Request.WRITE) { // for Write it's 0400
-			response = writeResp;
+			response = ackResp;
 		} else { // it was invalid, close socket on port 69 (so things work properly next time)
 					// and quit
-			receiveSocket.close();
+			sendSocketAndRecieve.close();
 			try {
 				throw new Exception("Not yet implemented");
 			} catch (Exception e) {
@@ -121,27 +130,19 @@ public class ClientConnectionThread extends Thread {
 
 		// Send the datagram packet to the client via a new socket.
 
-		try {
-			// Construct a new datagram socket and bind it to any port
-			// on the local host machine. This socket will be used to
-			// send UDP Datagram packets.
-			sendSocket = new DatagramSocket();
-		} catch (SocketException se) {
-			se.printStackTrace();
-			System.exit(1);
-		}
+		
 
 		try {
-			sendSocket.send(sendPacket);
+			sendSocketAndRecieve.send(sendPacket);
 		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 
-		System.out.println("Server: packet sent using port " + sendSocket.getLocalPort());
+		System.out.println("Server: packet sent using port " + sendSocketAndRecieve.getLocalPort());
 		System.out.println();
 
 		// We're finished with this socket, so close it.
-		sendSocket.close();
+		sendSocketAndRecieve.close();
 	}
 }
