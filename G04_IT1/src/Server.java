@@ -9,16 +9,10 @@ import java.net.*;
 import java.util.*;
 
 public class Server {
-
-   // types of requests we can receive
-   public static enum Request { READ, WRITE, ERROR};
-   // responses for valid requests
-   public static final byte[] readResp = {0, 3, 0, 1};
-   public static final byte[] writeResp = {0, 4, 0, 0};
    
    // UDP datagram packets and sockets used to send / receive
    private DatagramPacket sendPacket, receivePacket;
-   private DatagramSocket receiveSocket, sendSocket;
+   private DatagramSocket receiveSocket;
    
    public Server()
    {
@@ -39,7 +33,8 @@ public class Server {
 
 		String filename, mode;
 		int len, j = 0, k = 0;
-
+		ClientConnectionThread newThread;
+		
 		for (;;) { // loop forever
 			// Construct a DatagramPacket for receiving packets up
 			// to 100 bytes long (the length of the byte array).
@@ -56,7 +51,7 @@ public class Server {
 				System.exit(1);
 			}
 
-			ClientConnectionThread newThread = new ClientConnectionThread(receivePacket);
+			newThread = new ClientConnectionThread(receivePacket);
 			newThread.start();
 
 		} // end of loop
